@@ -1,0 +1,209 @@
+﻿@model HealthcareSystem.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Healthcare System</title>
+    <link rel="stylesheet" href="~/css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box register-box">
+            <div class="auth-header">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                </div>
+                <h1>Create Account</h1>
+                <p>Join our healthcare platform today</p>
+            </div>
+
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-error">
+                    @Html.ValidationSummary(false, "", new { @class = "validation-summary" })
+                </div>
+            }
+
+            <form asp-action="Register" asp-controller="Account" method="post" class="auth-form" id="registerForm">
+                @Html.AntiForgeryToken()
+
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="FirstName">First Name *</label>
+                            <input asp-for="FirstName" type="text" class="form-control" placeholder="John">
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName">Last Name *</label>
+                            <input asp-for="LastName" type="text" class="form-control" placeholder="Doe">
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email">Email Address *</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="john.doe@example.com">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PhoneNumber">Phone Number</label>
+                        <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+60123456789">
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="form-section">
+                    <h3>Account Information</h3>
+                    <div class="form-group">
+                        <label asp-for="Username">Username *</label>
+                        <input asp-for="Username" type="text" class="form-control" placeholder="johndoe">
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Password">Password *</label>
+                            <div class="password-input">
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Min. 6 characters" id="password">
+                                <button type="button" class="toggle-password" onclick="togglePassword()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="eye-icon">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword">Confirm Password *</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" id="confirmPassword">
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-section">
+                    <h3>Select Your Role</h3>
+                    <div class="form-group">
+                        <label asp-for="Role">I am a *</label>
+                        <select asp-for="Role" class="form-control" id="roleSelect" onchange="toggleRoleFields()">
+                            <option value="">-- Select Role --</option>
+                            <option value="Patient">Patient</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="ClinicStaff">Clinic Staff</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Doctor Specific Fields -->
+                <div class="form-section" id="doctorFields" style="display: none;">
+                    <h3>Doctor Information</h3>
+                    <div class="form-group">
+                        <label asp-for="Specialization">Specialization</label>
+                        <input asp-for="Specialization" type="text" class="form-control" placeholder="e.g., Cardiologist, Pediatrician">
+                        <span asp-validation-for="Specialization" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LicenseNumber">Medical License Number</label>
+                        <input asp-for="LicenseNumber" type="text" class="form-control" placeholder="e.g., MD123456">
+                        <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Patient Specific Fields -->
+                <div class="form-section" id="patientFields" style="display: none;">
+                    <h3>Patient Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="DateOfBirth">Date of Birth</label>
+                            <input asp-for="DateOfBirth" type="date" class="form-control">
+                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Gender">Gender</label>
+                            <select asp-for="Gender" class="form-control">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="BloodType">Blood Type</label>
+                        <select asp-for="BloodType" class="form-control">
+                            <option value="">-- Select --</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                        <span asp-validation-for="BloodType" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Create Account
+                </button>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a asp-action="Login" asp-controller="Account">Sign in</a></p>
+                </div>
+            </form>
+        </div>
+
+        <div class="auth-illustration">
+            <div class="illustration-content">
+                <h2>Join Us Today!</h2>
+                <p>Experience seamless healthcare management with our comprehensive platform.</p>
+                <div class="features">
+                    <div class="feature-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <polyline points="17 11 19 13 23 9"></polyline>
+                        </svg>
+                        <span>Quick Registration</span>
+                    </div>
+                    <div class="feature-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>Secure Data</span>
+                    </div>
+                    <div class="feature-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>Health Tracking</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/auth.js"></script>
+</body>
+</html>
