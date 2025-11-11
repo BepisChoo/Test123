@@ -25,5 +25,8 @@ namespace HealthcareSystem.Models
         public string Reason { get; set; }
 
         public string Status { get; set; } // e.g., "Pending", "Confirmed", "Completed"
+
+        public string? ReportS3Key { get; set; }     
+        public string? ReportFileName { get; set; }
     }
 }

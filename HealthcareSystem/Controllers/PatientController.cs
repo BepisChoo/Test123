@@ -26,9 +26,8 @@ namespace HealthcareSystem.Controllers
             return int.TryParse(userIdString, out userId);
         }
 
-        // ------------------------------------------------------------------
+   
         // FEATURE 2: VIEW UPCOMING APPOINTMENTS (Dashboard)
-        // ------------------------------------------------------------------
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -47,7 +46,7 @@ namespace HealthcareSystem.Controllers
 
             // Fetch upcoming appointments for this patient
             var upcomingAppointments = await _context.Appointments
-                .Where(a => a.PatientId == userId && a.AppointmentTime > DateTime.Now)
+                .Where(a => a.PatientId == userId && a.AppointmentTime > DateTime.UtcNow)
                 .Include(a => a.Doctor) // Include doctor details if needed
                 .OrderBy(a => a.AppointmentTime)
                 .ToListAsync();
