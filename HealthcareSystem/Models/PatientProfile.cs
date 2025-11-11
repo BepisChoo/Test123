@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HealthcareSystem.Models;
 
 namespace HealthcareSystem.Models
 {
@@ -25,6 +26,12 @@ namespace HealthcareSystem.Models
         [StringLength(500)]
         public string? MedicalHistory { get; set; }
 
+        [StringLength(20)]
+        public string? PhoneNumber { get; set; }
+
+
         public virtual User User { get; set; }
+
+
     }
 }

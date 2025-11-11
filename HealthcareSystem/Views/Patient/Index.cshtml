@@ -51,8 +51,18 @@
 <body>
     <div class="dashboard">
         <h1>🏥 Patient Dashboard</h1>
+
         <p class="welcome">Welcome back, <strong>@ViewBag.FullName</strong>!</p>
+
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+        }
+
         <p>This is the patient dashboard. You can view your medical records, book appointments, and more.</p>
+
+        <a asp-controller="Patient" asp-action="Profile" class="btn btn-primary">Update My Profile</a>
+
 
         <form asp-action="Logout" asp-controller="Account" method="post" style="margin-top: 2rem;">
             @Html.AntiForgeryToken()
