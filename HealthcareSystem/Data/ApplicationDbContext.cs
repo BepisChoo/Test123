@@ -8,12 +8,13 @@ namespace HealthcareSystem.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+
         }
 
         public DbSet<User> Users { get; set; }
         public DbSet<DoctorProfile> DoctorProfiles { get; set; }
         public DbSet<PatientProfile> PatientProfiles { get; set; }
-
+        public DbSet<Appointment> Appointments { get; set; } 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

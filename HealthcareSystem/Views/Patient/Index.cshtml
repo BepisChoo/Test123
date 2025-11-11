@@ -1,5 +1,8 @@
-﻿@{
+﻿@model IEnumerable<HealthcareSystem.Models.Appointment>
+@{
     ViewData["Title"] = "Patient Dashboard";
+    // NOTE: If this page appears inside another page's header/footer, add:
+    // Layout = null;
 }
 
 <!DOCTYPE html>
@@ -28,6 +31,11 @@
             color: #333;
         }
 
+        h4 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
         .welcome {
             color: #666;
             margin-bottom: 2rem;
@@ -46,6 +54,38 @@
             .logout-btn:hover {
                 background: #c82333;
             }
+
+        /* Add basic styles for the new buttons and table */
+        .btn {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+            border-collapse: collapse;
+        }
+
+            .table th, .table td {
+                padding: 0.75rem;
+                vertical-align: top;
+                border-top: 1px solid #dee2e6;
+            }
     </style>
 </head>
 <body>
@@ -61,8 +101,47 @@
 
         <p>This is the patient dashboard. You can view your medical records, book appointments, and more.</p>
 
-        <a asp-controller="Patient" asp-action="Profile" class="btn btn-primary">Update My Profile</a>
+        @* --- ACTION BUTTONS (Update Profile is now connected) --- *@
+        <div class="mb-4">
+            <a asp-controller="Patient" asp-action="Profile" class="btn btn-primary">Update My Profile</a>
+            <a asp-controller="Patient" asp-action="RequestAppointment" class="btn btn-success">Book New Appointment</a>
+        </div>
 
+        <hr style="margin-top: 2rem; margin-bottom: 2rem;" />
+
+        @* --- APPOINTMENTS TABLE (New Feature) --- *@
+        <h4>Your Upcoming Appointments</h4>
+
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Doctor ID</th>
+                    <th>Date & Time</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var appt in Model)
+                    {
+                        <tr>
+                            <td>@appt.DoctorId</td>
+                            <td>@appt.AppointmentTime.ToString("yyyy-MM-dd h:mm tt")</td>
+                            <td>@Html.DisplayFor(modelItem => appt.Reason)</td>
+                            <td><span class="badge bg-info">@appt.Status</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">You have no upcoming appointments.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
         <form asp-action="Logout" asp-controller="Account" method="post" style="margin-top: 2rem;">
             @Html.AntiForgeryToken()

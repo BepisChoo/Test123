@@ -1,9 +1,11 @@
 ﻿using HealthcareSystem.Data; // For ApplicationDbContext
-using HealthcareSystem.Models; // For PatientProfile
+using HealthcareSystem.Models; // For PatientProfile, Appointment
 using Microsoft.AspNetCore.Authorization; // For [Authorize]
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // For EF queries
 using System.Security.Claims; // For user info
+using System.Linq;
+using System.Threading.Tasks; // Needed for async Task
 
 namespace HealthcareSystem.Controllers
 {
@@ -17,9 +19,25 @@ namespace HealthcareSystem.Controllers
             _context = context;
         }
 
-        // GET: /Patient/Index
-        public IActionResult Index()
+        // Helper method to safely get the int UserId
+        private bool TryGetUserId(out int userId)
         {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(userIdString, out userId);
+        }
+
+        // ------------------------------------------------------------------
+        // FEATURE 2: VIEW UPCOMING APPOINTMENTS (Dashboard)
+        // ------------------------------------------------------------------
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            if (!TryGetUserId(out int userId))
+            {
+                return Unauthorized(); // Cannot find a valid ID
+            }
+
+            // Get FullName for display
             ViewBag.FullName = User.FindFirstValue(ClaimTypes.Name) ?? User.Identity?.Name;
 
             if (TempData["SuccessMessage"] != null)
@@ -27,25 +45,36 @@ namespace HealthcareSystem.Controllers
                 ViewBag.SuccessMessage = TempData["SuccessMessage"];
             }
 
-            return View();
+            // Fetch upcoming appointments for this patient
+            var upcomingAppointments = await _context.Appointments
+                .Where(a => a.PatientId == userId && a.AppointmentTime > DateTime.Now)
+                .Include(a => a.Doctor) // Include doctor details if needed
+                .OrderBy(a => a.AppointmentTime)
+                .ToListAsync();
+
+            return View(upcomingAppointments);
         }
+
+        // ------------------------------------------------------------------
+        // FEATURE 1: UPDATE CONTACT INFO (Profile)
+        // ------------------------------------------------------------------
 
         // GET: /Patient/Profile
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (!int.TryParse(userIdString, out int userId))
+            if (!TryGetUserId(out int userId))
             {
-                return Unauthorized(); // if user id isn't a valid int
+                return Unauthorized();
             }
 
+            // Query using int userId
             var patientProfile = await _context.PatientProfiles
                 .FirstOrDefaultAsync(p => p.UserId == userId);
 
             if (patientProfile == null)
             {
+                // If no profile exists, create a new one
                 patientProfile = new PatientProfile { UserId = userId };
             }
 
@@ -59,9 +88,7 @@ namespace HealthcareSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (!int.TryParse(userIdString, out int userId))
+                if (!TryGetUserId(out int userId))
                 {
                     return Unauthorized();
                 }
